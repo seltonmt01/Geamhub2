@@ -1,0 +1,728 @@
+local Players = game:FindService("Players") or game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local Run = game:FindService("RunService") or game:GetService("RunService")
+local running = false
+local ui = loadstring(game:GetObjects("rbxassetid://4133667265")[1].Source)("Library by wally")
+local w = ui:CreateWindow("Automated")
+w:Section("Autofarm")
+w:Toggle("Autofarm", {}, function(x)
+    shared.autofarm = x
+    pcall(Run.UnbindFromRenderStep, Run, "NoClip")
+    if shared.autofarm then
+        Run:BindToRenderStep("NoClip", 300, function()
+            pcall(function()
+                local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if not shared.autofarm or not human then
+                    return 
+                end
+                human:ChangeState(11)
+            end)
+        end)
+    end
+    while shared.autofarm and Run.RenderStepped:Wait() do
+        local boatterrains = workspace:WaitForChild("BoatTerrains", 1)
+        local checks = (boatterrains and boatterrains:GetDescendants()) or {}
+        local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        local torso = human and human.Health > 0 and human.Parent and human.RootPart
+        if torso then
+            for _, check in pairs(checks) do
+                running = true
+                if human and human.Health > 0 and (typeof(check) == "Instance" or type(check) == "table") and (check.Name == "DarknessPart" or check.Name == "GatePart") then
+                    check.Transparency = 0
+                    if torso then
+                        torso.CFrame = CFrame.new(check.Position)
+                    end
+                    wait(0.42)
+                elseif not human or human.Health <= 0 or not torso then
+                    break
+                end
+            end
+            local gc = workspace:FindFirstChild("GoldenChest")
+            local collider = gc and gc:FindFirstChild("Collider")
+            if collider and torso then
+                human.Jump = true
+                torso.CFrame = CFrame.new(collider.Position)
+            end
+        end
+        running = false
+    end
+end)
+w:Button("Autofarm (Go Once)", function()
+    pcall(Run.UnbindFromRenderStep, Run, "NoClip")
+    Run:BindToRenderStep("NoClip", 300, function()
+        pcall(function()
+            local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if not shared.autofarm or not human then
+                return 
+            end
+            human:ChangeState(11)
+        end)
+    end)
+    local boatterrains = workspace:WaitForChild("BoatTerrains", 1)
+    local checks = (boatterrains and boatterrains:GetDescendants()) or {}
+    local human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    local torso = human and human.Health > 0 and human.Parent and human.RootPart
+    if torso then
+        for _, check in pairs(checks) do
+            running = true
+            if human and human.Health > 0 and (typeof(check) == "Instance" or type(check) == "table") and (check.Name == "DarknessPart" or check.Name == "GatePart") then
+                check.Transparency = 0
+                if torso then
+                    torso.CFrame = CFrame.new(check.Position)
+                end
+                wait(0.42)
+            elseif not human or human.Health <= 0 or not torso then
+                break
+            end
+        end
+        local gc = workspace:FindFirstChild("GoldenChest")
+        local collider = gc and gc:FindFirstChild("Collider")
+        if collider and torso then
+            human.Jump = true
+            torso.CFrame = CFrame.new(collider.Position)
+        end
+    end
+    running = false
+    pcall(Run.UnbindFromRenderStep, Run, "NoClip")
+end)
+local IBFS = workspace:WaitForChild("ItemBoughtFromShop", 1)
+if IBFS then
+    w:Section("Auto Chest Opener")
+    w:Box("Amount", {
+        type = "number"
+    }, function(new, old, enter)
+        print(new, old, enter)
+        _G.AmountSelected = new
+    end)
+    w:Dropdown("Chest Type", {
+        list = {
+            "Common Chest",
+            "Uncommon Chest",
+            "Rare Chest",
+            "Epic Chest",
+            "Legendary Chest"
+        },
+        location = shared,
+        flag = "chesttype"
+    })
+    w:Button("Open Chest", function()
+        for i = 1, _G.AmountSelected do
+            Run.RenderStepped:Wait()
+            IBFS:FireServer(shared.chesttype or "Common Chest")
+        end
+    end)
+end
+local qm = workspace:WaitForChild("QuestMakerEvent", 1)
+if qm then
+    w:Section("Auto Open Quests")
+    w:Dropdown("Quest Name", {
+        list = {
+            "Cloud Quest",
+            "Target Quest",
+            "Ramp Quest",
+            "Find Me Quest",
+            "Dragon Quest",
+            "The Box Quest",
+            "Rings Quest",
+            "Soccor Quest"
+        },
+        location = shared,
+        flag = "questtype"
+    })
+    w:Button("Open Quest", function()
+        qm:FireServer(({
+            ["Cloud Quest"] = 1,
+            ["Target Quest"] = 2,
+            ["Ramp Quest"] = 3,
+            ["Find Me Quest"] = 4,
+            ["Dragon Quest"] = 5,
+            ["The Box Quest"] = 6,
+            ["Rings Quest"] = 7,
+            ["Soccor Quest"] = 8
+        })[shared.questtype or "Cloud Quest"])
+    end)
+end
+w:Section("End For Now")
+local w = ui:CreateWindow("Character Cheats")
+w:Button("Noclip (n)", function()
+    noclip = false
+    game:GetService("RunService").Stepped:connect(function()
+        if noclip then
+            LocalPlayer.Character.Humanoid:ChangeState(11)
+        end
+    end)
+    plr = LocalPlayer
+    local mouse = plr:GetMouse()
+    mouse.KeyDown:connect(function(key)
+        if key == "n" then
+            noclip = not noclip
+            LocalPlayer.Character.Humanoid:ChangeState(11)
+        end
+    end)
+    print("Loaded")
+    print("Press 'N' to noclip")
+end)
+w:Button("Player Forcefield", function()
+    plr = LocalPlayer
+    local ff = Instance.new("ForceField")
+    ff.Parent = plr.Character
+end)
+local box = w:Box("WalkSpeed", {
+    flag = "ws",
+    type = "number"
+}, function(box, new, old, enter)
+    print(new, old, enter)
+    LocalPlayer.Character.Humanoid.WalkSpeed = tonumber(new)
+end)
+local old = workspace.CurrentCamera.FieldOfView
+local s = w:Slider("FOV", {
+    min = math.floor(workspace.CurrentCamera.FieldOfView),
+    max = 120,
+    flag = "fov"
+}, function(v)
+    workspace.CurrentCamera.FieldOfView = v
+end)
+local b2 = w:Button("Reset FOV", function()
+    s:Set(old)
+end)
+w:Button("Remove Player Animations", function()
+    game:GetService("Players").LocalPlayer.Character.Humanoid.Animator:Destroy()
+end)
+local box = w:Box("JumpPower", {
+    flag = "jp",
+    type = "number"
+}, function(box, new, old, enter)
+    print(new, old, enter)
+    LocalPlayer.Character.Humanoid.JumpPower = tonumber(new)
+end)
+w:Button("Fox Character", function()
+    workspace.ChangeCharacter:FireServer("FoxCharacter")
+end)
+w:Button("Penguin Character", function()
+    workspace.ChangeCharacter:FireServer("PenguinCharacter")
+end)
+w:Button("Chicken Character", function()
+    workspace.ChangeCharacter:FireServer("ChickenCharacter")
+end)
+    local w = ui:CreateWindow("Miscellaneous")
+w:Section("Do Thease Things")
+w:Button("Anti AFK", function()
+    local vu = game:GetService("VirtualUser")
+    game:GetService("Players").LocalPlayer.Idled:connect(function()
+        vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        wait(1)
+        vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    end)
+    print("Anti-Afk Succes!")
+end)
+w:Button("Disable AntiCheat", function()
+    workspace.ExploitCheckRemote:Destroy()
+end)
+w:Section("Kill Yourself")
+w:Bind("Kill Player", {
+    flag = "killbind",
+    kbonly = true,
+    default = Enum.KeyCode.RightAlt
+}, function()
+    LocalPlayer.Character:BreakJoints()
+end)
+w:Section("Launch Team")
+w:Button("Launch Team Black", function()
+    workspace.BlackZone.RE:FireServer()
+end)
+w:Button("Launch Team Blue", function()
+    workspace["Really blueZone"].RE:FireServer()
+end)
+w:Button("Launch Team Green", function()
+    workspace.CamoZone.RE:FireServer()
+end)
+w:Button("Launch Team Magenta", function()
+    workspace["MagentaZone"].RE:FireServer()
+end)
+w:Button("Launch Team Red", function()
+    workspace["Really redZone"].RE:FireServer()
+end)
+w:Button("Launch Team White", function()
+    workspace["WhiteZone"].RE:FireServer()
+end)
+w:Button("Launch Team Yellow", function()
+    workspace["New YellerZone"].RE:FireServer()
+end)
+local w = ui:CreateWindow("Teleports")
+w:Section("Treasure Chests")
+w:Button("Teleport All Chests", function()
+    spawn(function()
+        Run:BindToRenderStep("NoClip", 0, function()
+            pcall(function()
+                if not LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                    return 
+                end
+                if not running == true then
+                    return 
+                end
+                LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(11)
+            end)
+        end)
+    end)
+    local checks = workspace.BoatTerrains:GetDescendants()
+    for i = 1, #checks do
+        running = true
+        if checks[i].Name == "LockHolePart1" or checks[i].Name == "LockHolePart2" then
+            checks[i].Transparency = 0
+            if LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = checks[i].CFrame
+            end
+            wait(0.42)
+        end
+    end
+    LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.GoldenChest.Collider.CFrame
+    repeat
+        if LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.Jump = true
+            LocalPlayer.Character.HumanoidRootPart.CFrame = workspace.GoldenChest.Collider.CFrame
+        end
+        wait()
+    until not LocalPlayer.Character:FindFirstChild("Humanoid")
+    running = false
+end)
+w:Box("Teleport to Player", {
+    type = "string"
+}, function(new, old, enter)
+    print(new, old, enter)
+    _G.PlayerSelected = new
+end)
+w:Button("Teleport", function()
+    game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = Players[_G.PlayerSelected].Character.HumanoidRootPart.CFrame
+end)
+w:Section("Team Teleports")
+w:Button("BlackZone Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-328.965668, -9.9999924, -72.1068497, 0, 0, 1, 0, 1, -0, -1, 0, 0)
+end)
+w:Button("Really blueZone Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(221.83432, -9.9999924, 289.493195, 0, 0, -1, 0, 1, 0, 1, 0, 0)
+end)
+w:Button("CamoZone Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-328.965668, -9.9999924, 285.893158, 0, 0, 1, 0, 1, -0, -1, 0, 0)
+end)
+w:Button("MagentaZone Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(221.83432, -9.9999924, 647.693176, 0, 0, -1, 0, 1, 0, 1, 0, 0)
+end)
+w:Button("Really redZone Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(221.83432, -9.9999924, -68.7067871, 0, 0, -1, 0, 1, 0, 1, 0, 0)
+end)
+w:Button("WhiteZone Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-53.5656891, -9.9999924, -345.506866, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+end)
+w:Button("New YellerZone Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-328.965668, -9.9999924, 643.893188, 0, 0, 1, 0, 1, -0, -1, 0, 0)
+end)                            
+w:Section("Teleport To TheEnd")
+w:Button("TheEnd Teleport", function()
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-53.5656891, -365.700012, 9326.89258, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+end)
+local w = ui:CreateWindow("Fun")
+w:Section("Random")
+w:Button("Teleport To Random Player", function()
+    local randomPlayer = Players:GetPlayers()[math.random(#Players:GetPlayers())]
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(randomPlayer.Character.Head.Position.X, randomPlayer.Character.Head.Position.Y, randomPlayer.Character.Head.Position.Z))
+end)
+w:Section("Tools")
+w:Button("Teleport Tool", function()
+    player1=game.Players.LocalPlayer
+
+q=Instance.new('HopperBin', player1.Backpack)
+q.Name = 'Click Teleport'
+
+
+bin = q
+
+
+
+function teleportPlayer(pos)
+local player = game.Players.LocalPlayer
+if player == nil or player.Character == nil then return end
+player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(pos.x, pos.y + 7, pos.z))
+end
+
+
+enabled = true
+function onButton1Down(mouse)
+if not enabled then
+return
+end
+
+local player = game.Players.LocalPlayer
+if player == nil then return end
+
+
+enabled = false
+local cf = mouse.Hit
+local v = cf.lookVector
+
+teleportPlayer(cf.p)
+
+wait()
+enabled = true
+
+end
+
+function onSelected(mouse)
+mouse.Icon = "rbxasset://textures\\ArrowCursor.png"
+mouse.Button1Down:connect(function() onButton1Down(mouse) end)
+end
+
+bin.Selected:connect(onSelected)
+end)
+w:Button("Fly (f)", function()
+    repeat wait()
+    until game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:findFirstChild("UpperTorso") and game.Players.LocalPlayer.Character:findFirstChild("Humanoid")
+  local mouse = game.Players.LocalPlayer:GetMouse()
+  repeat wait() until mouse
+  local plr = game.Players.LocalPlayer
+  local UpperTorso = plr.Character.UpperTorso
+  local flying = true
+  local deb = true
+  local ctrl = {f = 0, b = 0, l = 0, r = 0}
+  local lastctrl = {f = 0, b = 0, l = 0, r = 0}
+  local maxspeed = 100
+  local speed = 1
+  
+  function Fly()
+  plr.Character.Humanoid.WalkSpeed = 16.5
+  plr.Character.Humanoid.JumpPower = 50.5
+  local bg = Instance.new("BodyGyro", UpperTorso)
+  bg.P = 9e4
+  bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+  bg.cframe = UpperTorso.CFrame
+  local bv = Instance.new("BodyVelocity", UpperTorso)
+  bv.velocity = Vector3.new(0,0.1,0)
+  bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+  repeat wait()
+  plr.Character.Humanoid.PlatformStand = true
+  if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
+  speed = speed+.5+(speed/maxspeed)
+  if speed > maxspeed then
+  speed = maxspeed
+  end
+  elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
+  speed = speed-1
+  if speed < 0 then
+  speed = 0
+  end
+  end
+  if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
+  bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+  lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r}
+  elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then
+  bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+  else
+  bv.velocity = Vector3.new(0,0.1,0)
+  end
+  bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
+  until not flying
+  ctrl = {f = 0, b = 0, l = 0, r = 0}
+  lastctrl = {f = 0, b = 0, l = 0, r = 0}
+  speed = 0
+  bg:Destroy()
+  bv:Destroy()
+  plr.Character.Humanoid.PlatformStand = false
+  end
+  mouse.KeyDown:connect(function(key)
+  if key:lower() == "f" then
+  if flying then flying = false
+  else
+  flying = true
+  Fly()
+  end
+  elseif key:lower() == "w" then
+  ctrl.f = 1
+  elseif key:lower() == "s" then
+  ctrl.b = -1
+  elseif key:lower() == "a" then
+  ctrl.l = -1
+  elseif key:lower() == "d" then
+  ctrl.r = 1
+  end
+  end)
+  mouse.KeyUp:connect(function(key)
+  if key:lower() == "w" then
+  ctrl.f = 0
+  elseif key:lower() == "s" then
+  ctrl.b = 0
+  elseif key:lower() == "a" then
+  ctrl.l = 0
+  elseif key:lower() == "d" then
+  ctrl.r = 0
+  end
+  end)
+  Fly()
+end)
+w:Button("Spin Fling (R6)", function()
+    power = 500 -- change this to make it more or less powerful
+
+game:GetService('RunService').Stepped:connect(function()
+game.Players.LocalPlayer.Character.Head.CanCollide = false
+game.Players.LocalPlayer.Character.Torso.CanCollide = false
+game.Players.LocalPlayer.Character["Left Leg"].CanCollide = false
+game.Players.LocalPlayer.Character["Right Leg"].CanCollide = false
+end)
+
+wait(.1)
+local bambam = Instance.new("BodyThrust")
+bambam.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bambam.Force = Vector3.new(power,0,power)
+bambam.Location = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+end)
+w:Button("Spin Fling (R15)", function()
+    power = 500 -- change this to make it more or less powerful
+
+game:GetService('RunService').Stepped:connect(function()
+game.Players.LocalPlayer.Character.Head.CanCollide = false
+game.Players.LocalPlayer.Character.UpperTorso.CanCollide = false
+game.Players.LocalPlayer.Character.LowerTorso.CanCollide = false
+game.Players.LocalPlayer.Character.HumanoidRootPart.CanCollide = false
+end)
+wait(.1)
+local bambam = Instance.new("BodyThrust")
+bambam.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bambam.Force = Vector3.new(power,0,power)
+bambam.Location = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+end)
+w:Button("Invisible Spin Fling (R6-R15)", function()
+    
+
+spawn(function()
+    local message = Instance.new("Message",workspace)
+    message.Text = "Loaded press z to execute inviseble , press x to respawn)"
+    wait(0.5)
+    message:Destroy()
+    end)
+    
+    
+    
+    
+    
+    
+    
+    
+    local mouse = game.Players.LocalPlayer:GetMouse()
+    
+    local groot = nil
+    
+    mouse.KeyDown:connect(function(k)
+        
+        if k == "z" then
+            
+            
+            
+    spawn(function()
+    local message = Instance.new("Message",workspace)
+    message.Text = "'z' to use 'x' to respawn. Please wait 11 seconds!"
+    wait(11)
+    message:Destroy()
+    end)
+    
+    
+    local ch = game.Players.LocalPlayer.Character
+    local prt=Instance.new("Model", workspace)
+    local z1 =  Instance.new("Part", prt)
+    z1.Name="Torso"
+    z1.CanCollide = false
+    z1.Anchored = true
+    local z2  =Instance.new("Part", prt)
+    z2.Name="Head"
+    z2.Anchored = true
+    z2.CanCollide = false
+    local z3 =Instance.new("Humanoid", prt)
+    z3.Name="Humanoid"
+    z1.Position = Vector3.new(0,9999,0)
+    z2.Position = Vector3.new(0,9991,0)
+     game.Players.LocalPlayer.Character=prt
+    wait(5)
+    game.Players.LocalPlayer.Character=ch
+    wait(6)
+    
+    
+    local plr = game.Players.LocalPlayer
+    mouse = plr:GetMouse()
+    
+    local Hum = Instance.new("Humanoid")
+    Hum.Parent = game.Players.LocalPlayer.Character
+    
+    
+    local root =  game.Players.LocalPlayer.Character.HumanoidRootPart
+    
+    
+    for i,v in pairs(plr.Character:GetChildren()) do
+        
+        if v ~= root and  v.Name ~= "Humanoid" then
+            
+            v:Destroy()
+            
+        end
+        
+        
+    end
+               
+    workspace.CurrentCamera.CameraSubject = root
+    
+    local se = Instance.new("SelectionBox",root)
+    se.Adornee = root
+    
+    
+    game:GetService('RunService').Stepped:connect(function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CanCollide = false
+    end)
+    game:GetService('RunService').RenderStepped:connect(function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CanCollide = false
+    end)
+    
+    
+    power = 999999 -- change this to make it more or less powerful
+    
+    power = power*10
+    
+    ---
+    wait(.1)
+    local bambam = Instance.new("BodyThrust")
+    bambam.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+    bambam.Force = Vector3.new(power,0,power)
+    bambam.Location = game.Players.LocalPlayer.Character.HumanoidRootPart.Position 
+    
+    
+    
+    
+    
+    local plr = game.Players.LocalPlayer
+    local torso = root
+    local flying = true
+    local deb = true
+    local ctrl = {f = 0, b = 0, l = 0, r = 0}
+    local lastctrl = {f = 0, b = 0, l = 0, r = 0}
+    local maxspeed = 120
+    local speed = 15
+    
+    
+    ---local bambam = Instance.new("BodyThrust")
+    ---bambam.Parent = torso
+    --bambam.Force = Vector3.new(9999999,0,9999999)
+    --bambam.Location = torso.Position
+    
+    
+    ---
+    groot = root
+     
+    function Fly()
+    local bg = Instance.new("BodyGyro", torso)
+    bg.P = 9e4
+    bg.maxTorque = Vector3.new(0, 0, 0)
+    bg.cframe = torso.CFrame
+    local bv = Instance.new("BodyVelocity", torso)
+    bv.velocity = Vector3.new(0,0,0)
+    bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+    repeat wait()
+    
+    if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
+    speed = speed+.2
+    if speed > maxspeed then
+    speed = maxspeed
+    end
+    elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
+    speed = speed-1
+    if speed < 0 then
+    speed = 0
+    end
+    end
+    if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
+    bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+    lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r}
+    elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then
+    bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+    else
+    bv.velocity = Vector3.new(0,0.1,0)
+    end
+    
+    until not flying
+    ctrl = {f = 0, b = 0, l = 0, r = 0}
+    lastctrl = {f = 0, b = 0, l = 0, r = 0}
+    speed = 0
+    bg:Destroy()
+    bv:Destroy()
+    
+    end
+    mouse.KeyDown:connect(function(key)
+    if key:lower() == "e" then
+    if flying then flying = false
+    else
+    flying = true
+    Fly()
+    end
+    elseif key:lower() == "w" then
+    ctrl.f = 1
+    elseif key:lower() == "s" then
+    ctrl.b = -1
+    elseif key:lower() == "a" then
+    ctrl.l = -1
+    elseif key:lower() == "d" then
+    ctrl.r = 1
+    end
+    end)
+    mouse.KeyUp:connect(function(key)
+    if key:lower() == "w" then
+    ctrl.f = 0
+    elseif key:lower() == "s" then
+    ctrl.b = 0
+    elseif key:lower() == "a" then
+    ctrl.l = 0
+    elseif key:lower() == "d" then
+    ctrl.r = 0
+    elseif key:lower() == "r" then
+    
+    end
+    end)
+    Fly()
+    
+            
+            
+        elseif k == "x" then
+            
+            
+            spawn(function()
+    local message = Instance.new("Message",workspace)
+    message.Text = "Respawning dont spam"
+    wait(1)
+    message:Destroy()
+    end)
+            
+            local saved = groot.Position
+            
+    local ch = game.Players.LocalPlayer.Character
+    local prt=Instance.new("Model", workspace)
+    local z1 =  Instance.new("Part", prt)
+    z1.Name="Torso"
+    z1.CanCollide = false
+    z1.Anchored = true
+    local z2  =Instance.new("Part", prt)
+    z2.Name="Head"
+    z2.Anchored = true
+    z2.CanCollide = false
+    local z3 =Instance.new("Humanoid", prt)
+    z3.Name="Humanoid"
+    z1.Position = Vector3.new(0,9999,0)
+    z2.Position = Vector3.new(0,9991,0)
+     game.Players.LocalPlayer.Character=prt
+    wait(5)
+     game.Players.LocalPlayer.Character=ch
+    local poop = nil
+            repeat wait() poop = game.Players.LocalPlayer.Character:FindFirstChild("Head") until poop ~= nil
+            wait(1)
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(saved)
+            
+        end
+        
+        
+    end)
+
+
+end)
